@@ -9,7 +9,14 @@ description = "Multi-view 3D reconstruction with deep learning-based object dete
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Souvik Roy" }]
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.12"
+
+[project.scripts]
+mv3dp-run = "mv3dp.cli:run"
+mv3dp-download = "mv3dp.cli:download"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

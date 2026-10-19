@@ -1,0 +1,3 @@
+# Installed from https://download.pytorch.org/whl/<cuda-tag> by the setup scripts.
+torch==2.5.1
+torchvision==0.20.1
