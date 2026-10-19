@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mv3dp"
+version = "0.1.0"
+description = "Multi-view 3D reconstruction with deep learning-based object detection and 6DoF pose"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Souvik Roy" }]
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]
