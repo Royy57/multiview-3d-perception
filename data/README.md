@@ -1,9 +1,19 @@
 # data/
 
-Datasets are downloaded here and are never committed. Planned datasets:
+Datasets are downloaded here and never committed.
 
-| Dataset | Use |
-|---|---|
-| Mip-NeRF 360 (counter, kitchen, room) | Main scene reconstruction + 3D object detection demo |
-| ETH3D high-res multi-view | Reconstruction accuracy against ground-truth laser scans |
-| LINEMOD (BOP format) | 6DoF pose accuracy against ground-truth poses |
+```
+python scripts/download_mipnerf360.py --scene counter --resolution 4
+```
+
+creates
+
+```
+data/mipnerf360/counter/
+  images/             JPEGs at the chosen resolution
+  reference_sparse/   the dataset's own COLMAP model (used only for evaluation)
+  resolution.txt
+```
+
+Scenes: `bicycle`, `bonsai`, `counter`, `garden`, `kitchen`, `room`, `stump`
+(the indoor ones, `bonsai`, `counter`, `kitchen` and `room`, have the most COCO objects).
