@@ -1,0 +1,20 @@
+# Mip-NeRF 360 "kitchen" (indoor). Download first:
+#   python scripts/download_mipnerf360.py --scene kitchen --resolution 4
+scene_dir: data/mipnerf360/kitchen
+output_dir: outputs/kitchen
+
+sparse:
+  camera_model: SIMPLE_RADIAL
+  holdout_every: 8          # every 8th image is a test view for 6DoF pose evaluation
+
+dense:
+  method: sgbm              # "colmap" if you have a CUDA build of COLMAP on PATH
+  max_image_size: 1000
+
+detection:
+  model: yolo11m-seg.pt
+  confidence: 0.35
+
+fusion:
+  min_views: 3
+  min_points: 15

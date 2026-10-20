@@ -1,10 +1,12 @@
-numpy
-opencv-python
-open3d
-pycolmap
-torch
-ultralytics
-scipy
-tqdm
-pyyaml
-pytest
+# Exact versions so every machine gets the same environment.
+# PyTorch is installed separately by the setup scripts (it needs the CUDA wheel index).
+numpy==1.26.4
+opencv-python==4.10.0.84
+open3d==0.18.0
+pycolmap==3.11.1
+scipy==1.13.1
+ultralytics==8.3.40
+pyyaml==6.0.2
+tqdm==4.67.1
+plotly==5.24.1
+pytest==8.3.4
