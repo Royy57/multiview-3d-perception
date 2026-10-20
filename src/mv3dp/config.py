@@ -15,7 +15,10 @@ class SparseConfig:
     max_image_size: int = 1600
     max_num_features: int = 8192
     # Exhaustive matching up to this many images, sequential matching beyond.
-    exhaustive_max_images: int = 300
+    # pip wheels of pycolmap match on CPU, where exhaustive matching of a few
+    # hundred images takes over an hour; sequential matching suits video-like
+    # captures such as Mip-NeRF 360 and takes minutes.
+    exhaustive_max_images: int = 100
     sequential_overlap: int = 20
     use_gpu: bool = True
     # Every N-th image (sorted by name) is held out of SfM for pose evaluation,
@@ -67,9 +70,10 @@ class FusionConfig:
     # observing it put it inside a mask of that class.
     point_vote_ratio: float = 0.5
     min_point_votes: int = 2
-    # Spatial clustering radius, as a multiple of the median point spacing.
-    cluster_radius_factor: float = 4.0
-    box_percentile: float = 2.0
+    # Spatial clustering radius, as a multiple of the local SfM point spacing
+    # (median distance to the 4th nearest neighbour around the object).
+    cluster_radius_factor: float = 2.5
+    box_percentile: float = 5.0
     use_dense_points: bool = True
     # Same-class instances are merged when this fraction of one's points lies
     # inside the other's box (fragments of one object, e.g. a plant's leaves).

@@ -94,14 +94,18 @@ def radius_clusters(points: np.ndarray, radius: float) -> list[np.ndarray]:
     return sorted((np.array(g) for g in uf.groups()), key=len, reverse=True)
 
 
-def median_spacing(points: np.ndarray, max_samples: int = 20000, seed: int = 0) -> float:
-    if len(points) < 2:
-        return 1.0
+def local_spacing(tree: cKDTree, points: np.ndarray, k: int = 4, max_samples: int = 5000, seed: int = 0) -> float:
+    """Median distance from ``points`` to their k-th nearest neighbour in the full cloud.
+
+    This measures the SfM point density *around* an object: plain surfaces get
+    few points and well-textured ones many, so one global radius would either
+    shatter plain objects or glue textured ones to their surroundings.
+    """
     sample = points
     if len(points) > max_samples:
         sample = points[np.random.default_rng(seed).choice(len(points), max_samples, replace=False)]
-    d, _ = cKDTree(points).query(sample, k=2)
-    return float(np.median(d[:, 1]))
+    d, _ = tree.query(sample, k=k + 1)
+    return float(np.median(d[:, k]))
 
 
 @dataclass
@@ -188,9 +192,9 @@ def fuse_detections(
         if n >= cfg.min_shared_points and overlap >= cfg.min_overlap_ratio:
             uf.union(ga, gb)
 
-    # 3. Spatially split each component into instances.
-    all_xyz = np.array([p.xyz for p in rec.points3D.values()])
-    radius = cfg.cluster_radius_factor * median_spacing(all_xyz)
+    # 3. Spatially split each component into instances, with a clustering
+    # radius adapted to the local point density.
+    tree = cKDTree(np.array([p.xyz for p in rec.points3D.values()]))
     G = frame_from_up(estimate_up_vector(list(cams.values())))
 
     candidates: list[ObjectInstance] = []
@@ -203,6 +207,7 @@ def fuse_detections(
         if len(pids) < cfg.min_points:
             continue
         xyz = np.array([rec.points3D[int(p)].xyz for p in pids])
+        radius = cfg.cluster_radius_factor * local_spacing(tree, xyz)
         for cluster in radius_clusters(xyz, radius):
             if len(cluster) < cfg.min_points:
                 break

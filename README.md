@@ -7,7 +7,7 @@ find the objects in it with a deep learning detector, place each one as a labell
 ![3D boxes fused from multi-view detections, projected back into the images](docs/images/counter_3d_boxes.jpg)
 
 *Mip-NeRF 360 "counter": every box is a fused 3D object (bowl, apple, orange, plant,
-jar…) projected back into a few of the input views.*
+jar…) projected back into some of the input views.*
 
 Runs natively on **Windows** (and Linux) in a plain Python virtual environment.
 No ROS is needed. An NVIDIA GPU speeds up YOLO but is optional.
@@ -43,24 +43,40 @@ Some design points:
   is excluded from reconstruction. Object poses are estimated in those unseen images
   and compared with the dataset's reference poses after a 7-DoF Umeyama alignment.
 
-## Results (Mip-NeRF 360 "counter", 1/4 resolution)
+## Results (Mip-NeRF 360, 1/4 resolution, every stage run from scratch)
 
-| | |
-|---|---|
-| Images registered by SfM | 210 / 210 training views |
-| Camera accuracy vs. reference | rotation error 0.08° median, ATE 0.04 % of scene size |
-| Dense point cloud | ~700 k points |
-| Objects found | 7, by YOLO label: bowl ×2, cup, bottle (a jar), apple, orange (a net of oranges), potted plant |
-| 6DoF pose on held-out views | PnP solved 41/43 queries, median rotation error 0.5°, median ADD 2.6 % of object diameter |
-| ADD < 10 % of diameter | 93 % of solved queries (88 % of all queries) |
+| | counter | kitchen |
+|---|---|---|
+| Images registered by SfM | 210 / 210 | 244 / 244 |
+| Camera rotation error vs. reference (median) | 0.08° | 0.18° |
+| Camera position error (ATE, % of scene size) | 0.04 % | 0.14 % |
+| Dense point cloud | ~0.7 M points | ~1.2 M points |
+| Objects found (YOLO labels) | 20: bowls, cups, bottles/jars, apple, orange net, plant, sink, oven, fridge… | 14: Lego "truck", chairs, handbag, table, bottles, cup, plants… |
+| 6DoF pose, held-out views: PnP solved | 63 / 67 queries | 21 / 22 queries |
+| Median rotation error / median ADD | 0.53° / 2.2 % of diameter | 0.23° / 0.9 % of diameter |
+| ADD < 10 % of diameter | 89 % of solved (84 % of all) | 95 % of solved (91 % of all) |
+
+![Kitchen scene: fused 3D boxes](docs/images/kitchen_3d_boxes.jpg)
 
 ![6DoF object poses estimated in held-out test images](docs/images/counter_pose.jpg)
 
-*Held-out test images: estimated poses (green box and axes) and reference poses (red)
-are drawn on top of each other and almost coincide.*
+*Held-out test images from "counter": estimated poses (green box and axes) are drawn
+over the reference poses (red), which they almost completely hide.*
 
-The numbers come from `outputs/counter/metrics.json` after running the pipeline on
-CPU in a cloud container. Your numbers on a GPU machine may differ slightly.
+The numbers come from `outputs/<scene>/metrics.json` after a CPU-only run in a cloud
+container (SfM ≈ 6–12 min per scene, the rest a few minutes). Expect small
+differences on other machines.
+
+### Known limitations
+
+- Box quality is bounded by the 2D masks: when masks bleed onto the table, the
+  fused box grows a little. Box extents are trimmed at robust percentiles
+  (`fusion.box_percentile`), which also slightly shrinks thin parts (e.g. the
+  bulldozer's bucket in "kitchen").
+- Labels are COCO classes, so objects outside COCO get the nearest class (the Lego
+  bulldozer in "kitchen" is a "truck"), and some background objects get wrong labels.
+- The pose stage locates objects by matching against the scene model. It needs the
+  same object instance as in the reconstruction, not just the same category.
 
 ## Setup
 
